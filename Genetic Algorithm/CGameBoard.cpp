@@ -92,7 +92,7 @@ int CGameBoard::GetHeuristic()
 	return(attacks);
 }
 
-void CGameBoard::FirstBoard()
+void CGameBoard::RandFilledBoard()
 {
 	// Randomly placing queens on each row
 	for (int i = 0; i < gameBoardSize; i++)

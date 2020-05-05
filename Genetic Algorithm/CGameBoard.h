@@ -12,7 +12,7 @@ public:
 	CGameBoard(int boardSize);
 	~CGameBoard();
 
-	void FirstBoard();
+	void RandFilledBoard();
 	void AlteredBoard(std::vector<std::vector<char>> currentBoard);
 	int GetHeuristic();
 	void PrintBoard();
