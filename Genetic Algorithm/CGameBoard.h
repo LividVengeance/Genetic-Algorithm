@@ -18,7 +18,8 @@ public:
 	void PrintBoard();
 
 	std::vector<std::vector<char>> gameBoard;
-private:
 
 	int gameBoardSize;
+private:
+	
 };
