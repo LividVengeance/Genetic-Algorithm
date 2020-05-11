@@ -155,30 +155,6 @@ void CGeneticAlgorithm::MutationCheck(CGameBoard* childBoard)
 	}
 }
 
-void CGeneticAlgorithm::ClearBoard(CGameBoard childBoard)
-{
-	for (int i = 0; i < boardSize; i++)
-	{
-		for (int j = 0; j < boardSize; j++)
-		{
-			childBoard.gameBoard[i][j] = '-';
-		}
-	}
-}
-
-void CGeneticAlgorithm::ClearPop(CGameBoard firstSample, CGameBoard secondSample)
-{
-	//for (int i = 0; i < boardsInPop.size(); i++)
-	//{
-	//	if (!(boardsInPop[i].gameBoard == firstSample.gameBoard) || !(boardsInPop[i].gameBoard == secondSample.gameBoard))
-	//	{
-	//		delete boardsInPop[i];
-	//
-	//	}
-	//}
-	boardsInPop.clear();
-}
-
 void CGeneticAlgorithm::GetBest()
 {
 	for (int i = 0; i < boardsInPop.size(); i++)

@@ -18,8 +18,6 @@ public:
 	void ParentShareInfo(CGameBoard* firstSample, CGameBoard* secondSample, CGameBoard* newChild);
 	void NewPopulation(CGameBoard* bestFirstSample, CGameBoard* bestSecondSample);
 	void MutationCheck(CGameBoard* childBoard);
-	void ClearBoard(CGameBoard childBoard);
-	void ClearPop(CGameBoard firstSample, CGameBoard secondSample);
 	void GetBest();
 
 	void NewSamples();
