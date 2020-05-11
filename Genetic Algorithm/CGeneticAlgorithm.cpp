@@ -5,132 +5,153 @@ CGeneticAlgorithm::CGeneticAlgorithm(int sizeInput, int boardSizeInput)
 {
 	sizePopulation = sizeInput;
 	boardSize = boardSizeInput;
-	percentPop = 1;
 
 	// Creates a population of random CGameBoards with queens
 	for (int i = 0; i < sizePopulation; i++)
 	{
-		CGameBoard newBoard(boardSize);
-		newBoard.RandFilledBoard();
+		CGameBoard* newBoard = new CGameBoard(boardSize);
+		newBoard->RandFilledBoard();
 		boardsInPop.push_back(newBoard);
 	}
 
+	std::vector<CGameBoard*> firstSample;
+	std::vector<CGameBoard*> secondSample;
+
 	// Get first parent 
-	CGameBoard bestFirstSample(boardSize);
-	RandomSample(firstSample);
-	SampleHeuristic(firstSample, bestFirstSample);
+	CGameBoard* bestFirstSample = new CGameBoard(boardSize);
+	bestFirstSample->FillQueens();						// To make sure I get the best in the sample
+	bestBoard = bestFirstSample;						// So not empty when checking at end
+	RandomSample(&firstSample);							// Get random sample from pop
+	SampleHeuristic(firstSample, bestFirstSample);		// Get best in sample
+
 	// Get second parent
-	CGameBoard bestSecondSample(boardSize);
-	RandomSample(secondSample);
-	SampleHeuristic(secondSample, bestSecondSample);
+	CGameBoard* bestSecondSample = new CGameBoard(boardSize);
+	bestSecondSample->FillQueens();						// To make sure I get the best in the sample
+	RandomSample(&secondSample);						// Get random sample from pop
+	SampleHeuristic(secondSample, bestSecondSample);	// Get best in sample
 
 	// Get children
-	NewPopulation(bestFirstSample, bestSecondSample);
+	NewPopulation(bestFirstSample, bestSecondSample);	// Get Child from parent
 }
 
-CGeneticAlgorithm::CGeneticAlgorithm()
+void CGeneticAlgorithm::NewSamples()
 {
-	// Get first parent 
-	CGameBoard bestFirstSample(boardSize);
-	RandomSample(firstSample);
-	SampleHeuristic(firstSample, bestFirstSample);
-	// Get second parent
-	CGameBoard bestSecondSample(boardSize);
-	RandomSample(secondSample);
-	SampleHeuristic(secondSample, bestSecondSample);
+	iderations++;
+	if (iderations >= sizePopulation)
+	{
+		GetBest();
+		std::cout << bestBoard->GetHeuristic() << " - Final Solution" << std::endl;
+	}
+	else
+	{
+		std::vector<CGameBoard*> firstSample;
+		std::vector<CGameBoard*> secondSample;
 
-	// Get children
-	NewPopulation(bestFirstSample, bestSecondSample);
+		// Get first parent 
+		CGameBoard* bestFirstSample = new CGameBoard(boardSize);
+		//bestFirstSample->FillQueens(); // To make sure I get the best in the sample
+
+		bestFirstSample->RandFilledBoard();
+
+		RandomSample(&firstSample);
+		SampleHeuristic(firstSample, bestFirstSample);
+		// Get second parent
+		CGameBoard* bestSecondSample = new CGameBoard(boardSize);
+		//bestSecondSample->FillQueens(); // To make sure I get the best in the sample
+
+		bestSecondSample->RandFilledBoard();
+
+		RandomSample(&secondSample);
+		SampleHeuristic(secondSample, bestSecondSample);
+
+		// Get children
+		NewPopulation(bestFirstSample, bestSecondSample);
+	}
 }
 
 CGeneticAlgorithm::~CGeneticAlgorithm()
 {
 }
 
-void CGeneticAlgorithm::SampleHeuristic(std::vector<CGameBoard> samplePop, CGameBoard bestInSample)
+void CGeneticAlgorithm::SampleHeuristic(std::vector<CGameBoard*> samplePop, CGameBoard* bestInSample)
 {
-	// Checks the sample boards for the best board
+	// Checks the sample boards for the best board - Getting the parent
 	for (int i = 0; i < samplePop.size(); i++)
 	{
-		if (samplePop[i].GetHeuristic() > bestInSample.GetHeuristic())
+		if (samplePop[i]->GetHeuristic() > bestInSample->GetHeuristic())
 		{
 			bestInSample = samplePop[i];
 		}
 	}
 }
 
-void CGeneticAlgorithm::RandomSample(std::vector<CGameBoard> samplePop)
+void CGeneticAlgorithm::RandomSample(std::vector<CGameBoard*>* samplePop)
 {
-	// Gets random % of population
-
-	// Suffles the elements in population
+	// Suffles the elements in population - Gets random % of population
 	std::random_shuffle(boardsInPop.begin(), boardsInPop.end());
-	for (int i = 0; i < boardsInPop.size() / percentPop; i++)
+	for (int i = 0; i < boardsInPop.size() / 4; i++)
 	{
-		samplePop.push_back(boardsInPop[i]);
+		samplePop->push_back(boardsInPop[i]);
 	}
 }
 
-void CGeneticAlgorithm::NewPopulation(CGameBoard firstSample, CGameBoard secondSample)
+void CGeneticAlgorithm::NewPopulation(CGameBoard* bestFirstSample, CGameBoard* bestSecondSample)
 {
-	boardsInPop.clear();
+	// Generates a new population from parents
+	boardsInPop.clear(); // Clears old pop
 	while (boardsInPop.size() < sizePopulation)
 	{
-		CGameBoard newChild(boardSize);
-		ParentShareInfo(firstSample, secondSample, newChild);
+		CGameBoard* newChild = new CGameBoard(boardSize);
+		ParentShareInfo(bestFirstSample, bestSecondSample, newChild);
+		boardsInPop.push_back(newChild);
 	}
+	// Rerun will new pop
+	NewSamples();
 }
 
-void CGeneticAlgorithm::ParentShareInfo(CGameBoard firstSample, CGameBoard secondSample, CGameBoard newChild)
+void CGeneticAlgorithm::ParentShareInfo(CGameBoard* bestFirstSample, CGameBoard* bestSecondSample, CGameBoard* newChild)
 {
-	int gen = rand() % firstSample.gameBoardSize;
+	int gene = rand() % bestFirstSample->gameBoardSize;
 
-	for (int i = 0; i < firstSample.gameBoardSize; i++)
+	for (int i = 0; i < bestFirstSample->gameBoardSize; i++)
 	{
-		for (int j = 0; j < firstSample.gameBoardSize; j ++)
+		for (int j = 0; j < bestFirstSample->gameBoardSize; j ++)
 		{
-			if (i <= gen)
+			if (i <= gene)
 			{
-				newChild.gameBoard[i][j] = firstSample.gameBoard[i][j];
+				newChild->gameBoard[i][j] = bestFirstSample->gameBoard[i][j];
 			}
 			else
 			{
-				newChild.gameBoard[i][j] = secondSample.gameBoard[i][j];
+				newChild->gameBoard[i][j] = bestFirstSample->gameBoard[i][j];
 			}
 		}
 	}
 
 	MutationCheck(newChild);
-	iderations++;
-	if (iderations < boardSize)
-	{
-		std::cout << newChild.GetHeuristic() << std::endl;
-		CGeneticAlgorithm();
-	}
-	std::cout << newChild.GetHeuristic() << "Final Solution" << std::endl;
 }
 
-void CGeneticAlgorithm::MutationCheck(CGameBoard childBoard)
+void CGeneticAlgorithm::MutationCheck(CGameBoard* childBoard)
 {
-	int chance = rand() % 100;
-	if (chance == 0)
+	int mutationChance = rand() % 25;
+	if (mutationChance == 7)
 	{
-		int randRow = rand() % childBoard.gameBoardSize;
-		int randCol = rand() % childBoard.gameBoardSize;
+		int randRow = rand() % childBoard->gameBoardSize;
+		int randCol = rand() % childBoard->gameBoardSize;
 
 		// Clears the row to prevent added extra queen to the board
-		for (int i = 0; i < childBoard.gameBoardSize; i++)
+		for (int i = 0; i < childBoard->gameBoardSize; i++)
 		{
-			for (int j = 0; j < childBoard.gameBoardSize; j++)
+			for (int j = 0; j < childBoard->gameBoardSize; j++)
 			{
 				if (i == randRow)
 				{
-					childBoard.gameBoard[i][j] = '-';
+					childBoard->gameBoard[i][j] = '-';
 				}
 			}
 		}
 		// Randomly placing queen on a line
-		childBoard.gameBoard[randRow][randCol] = 'Q';
+		childBoard->gameBoard[randRow][randCol] = 'Q';
 	}
 }
 
@@ -156,4 +177,15 @@ void CGeneticAlgorithm::ClearPop(CGameBoard firstSample, CGameBoard secondSample
 	//	}
 	//}
 	boardsInPop.clear();
+}
+
+void CGeneticAlgorithm::GetBest()
+{
+	for (int i = 0; i < boardsInPop.size(); i++)
+	{
+		if (boardsInPop[i]->GetHeuristic() < bestBoard->GetHeuristic())
+		{
+			bestBoard = boardsInPop[i];
+		}
+	}
 }

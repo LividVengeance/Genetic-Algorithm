@@ -16,6 +16,7 @@ public:
 	void AlteredBoard(std::vector<std::vector<char>> currentBoard);
 	int GetHeuristic();
 	void PrintBoard();
+	void FillQueens();
 
 	std::vector<std::vector<char>> gameBoard;
 

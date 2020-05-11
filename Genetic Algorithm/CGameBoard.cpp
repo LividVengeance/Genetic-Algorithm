@@ -139,3 +139,14 @@ void CGameBoard::PrintBoard()
 		std::cout << std::endl;
 	}
 }
+
+void CGameBoard::FillQueens()
+{
+	for (int i = 0; i < gameBoardSize; i++)
+	{
+		for (int j = 0; j < gameBoardSize; j++)
+		{
+			gameBoard[i][j] = 'Q';
+		}
+	}
+}
